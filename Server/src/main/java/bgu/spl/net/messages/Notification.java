@@ -2,9 +2,12 @@ package bgu.spl.net.messages;
 
 public class Notification implements Message {
     private String message;
+    private short opCode;
 
 
-    public Notification(String message) {
+    public Notification(String message, short opCode) {
+        this.opCode = opCode;
+
         this.message = message;
     }
 
@@ -15,6 +18,10 @@ public class Notification implements Message {
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+ }
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
 }

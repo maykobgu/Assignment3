@@ -1,12 +1,12 @@
 package bgu.spl.net.api;
 
 import bgu.spl.net.messages.*;
-import bgu.spl.net.messages.Error;
+import bgu.spl.net.messages.ErrorMsg;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder {
+public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder<Message> {
     private byte[] bytes = new byte[1 << 10]; //start with 1k
     private int len = 0;
 
@@ -18,14 +18,13 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder {
      * @return a message if this byte completes one or null if it doesnt.
      */
     @Override
-    public Object decodeNextByte(byte nextByte) {
+    public Message decodeNextByte(byte nextByte) {
         if (nextByte == '\n') {
             byte[] arr = new byte[2];
             arr[0] = bytes[0];
             arr[1] = bytes[1];
             short opCode = bytesToShort(arr);
-            String msg = popString();
-            return createMessage(opCode, msg.substring(2));
+            return createMessage(opCode, bytes);
         }
 
         pushByte(nextByte);
@@ -39,7 +38,7 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder {
      * @return the encoded bytes
      */
     @Override
-    public byte[] encode(Object message) {
+    public byte[] encode(Message message) {
         return (message + "\n").getBytes();
     }
 
@@ -59,55 +58,60 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder {
         return result;
     }
 
+
+    private String popStringFrom(int offset) {
+        //notice that we explicitly requesting that the string will be decoded from UTF-8
+        //this is not actually required as it is the default encoding in java.
+        String result = new String(bytes, offset, len, StandardCharsets.UTF_8);
+        len = 0;
+        return result;
+    }
+
+
     public short bytesToShort(byte[] byteArr) {
         short result = (short) ((byteArr[0] & 0xff) << 8);
         result += (short) (byteArr[1] & 0xff);
         return result;
     }
 
-    private Message createMessage(short opCode, String msg) {
+    private Message createMessage(short opCode, byte[] bytes) {
+        String msg = popString();
         Message message;
         switch (opCode) {
             case 1:
-                message = new Register(msg);
+                message = new Register(msg.substring(2), opCode);
                 break;
             case 2:
-                message = new Login(msg);
+                message = new Login(msg.substring(2), opCode);
                 break;
             case 3:
-                message = new Logout(msg);
+                message = new Logout(opCode);
                 break;
             case 4:
-                message = new Follow(msg);
+                byte[] arr = new byte[2];
+                arr[0] = bytes[3];
+                arr[1] = bytes[4];
+                short numOfUsers = bytesToShort(arr);
+                String list = popStringFrom(6);
+                message = new Follow(bytes[2], numOfUsers, list, opCode);
                 break;
             case 5:
-                message = new Post(msg);
+                message = new Post(msg.substring(2, msg.length() - 1), opCode);
                 break;
             case 6:
-                message = new PrivateMessage(msg);
+                message = new PrivateMessage(msg, opCode);
                 break;
             case 7:
-                message = new UserList(msg);
+                message = new UserList(msg, opCode);
                 break;
             case 8:
-                message = new Stat(msg);
-                break;
-            case 9:
-                message = new Notification(msg);
-                break;
-            case 10:
-                message = new Ack(msg);
-                break;
-            case 11:
-                message = new Error(msg);
+                message = new Stat(msg, opCode);
                 break;
             default:
                 message = null;
                 break;
         }
+
         return message;
     }
-
-
-    abstract
 }

@@ -1,25 +1,24 @@
 package bgu.spl.net.messages;
 
-public class PrivateMessage implements Message {
-    private String message;
+public class ErrorMsg implements Message {
     private short opCode;
+    private short msgOpCode;
 
 
-    public PrivateMessage(String message, short opCode) {
-        this.message = message;
+    public ErrorMsg(short opCode, short msgOpCode) {
         this.opCode = opCode;
-
+        this.msgOpCode = msgOpCode;
     }
 
     @Override
     public String getMessage() {
-        return message;
+        return "";
     }
 
     @Override
     public void process() {
 //logic
- }
+    }
     @Override
     public short getOpCode() {
         return opCode;

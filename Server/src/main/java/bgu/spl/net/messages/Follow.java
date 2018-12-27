@@ -1,27 +1,39 @@
 package bgu.spl.net.messages;
 
 public class Follow implements Message {
-    private String message;
+    private String[] list;
+    private short opCode;
     private String type;
+    private short numOfUsers;
 
-    public Follow(String message) {
-        this.message = message;
-        type = whichFollow(message);
+    public Follow(int followType, short numOfUsers, String list, short opCode) {
+        if (followType == 0) type = "follow";
+        else type = "unfollow";
+        this.opCode = opCode;
+        this.numOfUsers = numOfUsers;
+        this.list = list.split(" ");
     }
 
-
-    @Override
-    public String getMessage() {
-        return message;
+    public String[] getListOfUsersToFollow() {
+        return list;
     }
 
     @Override
     public void process() {
-        //do the login logic
+//logic
     }
 
-    private String whichFollow(String msg) {
-        if (msg.charAt(0) == 0) return "follow";
-        else return "unfollow";
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
+
+    public String getFollowType() {
+        return type;
+    }
+
+    public short getNumOfUsers() {
+        return numOfUsers;
+    }
+
 }

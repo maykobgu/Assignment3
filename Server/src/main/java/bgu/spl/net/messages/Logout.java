@@ -1,20 +1,26 @@
 package bgu.spl.net.messages;
 
 public class Logout implements Message {
-    private String message;
+    private short opCode;
 
 
-    public Logout(String message) {
-        this.message = message;
+    public Logout(short opCode) {
+        this.opCode = opCode;
+
     }
 
     @Override
     public String getMessage() {
-        return message;
+        return "";
     }
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+ }
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
+
 }
