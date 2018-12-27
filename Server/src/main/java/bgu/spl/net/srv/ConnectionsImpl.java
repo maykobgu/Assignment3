@@ -15,6 +15,9 @@ import java.util.function.Supplier;
 public class ConnectionsImpl<T> implements Connections<T> {
     private HashMap<Integer, ConnectionHandler> connections;
 
+
+
+
     @Override
     public boolean send(int connectionId, T msg) {
         ConnectionHandler connect = connections.get(connectionId);
@@ -37,5 +40,9 @@ public class ConnectionsImpl<T> implements Connections<T> {
 
     public void setConnection(int connectionId, ConnectionHandler handler) {
         connections.put(connectionId, handler);
+    }
+
+    public ConnectionHandler getConnection(int connectionId) {
+        return connections.get(connectionId);
     }
 }

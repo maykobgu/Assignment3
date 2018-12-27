@@ -2,10 +2,13 @@ package bgu.spl.net.messages;
 
 public class Stat implements Message {
     private String message;
+    private short opCode;
 
 
-    public Stat(String message) {
+    public Stat(String message, short opCode) {
         this.message = message;
+        this.opCode = opCode;
+
     }
 
     @Override
@@ -15,6 +18,10 @@ public class Stat implements Message {
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+ }
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
 }

@@ -2,10 +2,13 @@ package bgu.spl.net.messages;
 
 public class UserList implements Message {
     private String message;
+    private short opCode;
 
 
-    public UserList(String message) {
+    public UserList(String message, short opCode) {
         this.message = message;
+        this.opCode = opCode;
+
     }
 
     @Override
@@ -15,6 +18,10 @@ public class UserList implements Message {
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+    }
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
 }

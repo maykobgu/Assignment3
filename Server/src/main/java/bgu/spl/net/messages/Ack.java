@@ -1,20 +1,27 @@
 package bgu.spl.net.messages;
 
 public class Ack implements Message {
-    private String message;
+    private short opCode;
+    private short msgOpCode;
+    private String optional;
 
-
-    public Ack(String message) {
-        this.message = message;
+    public Ack(short opCode, short msgOpCode, String optional) {
+        this.opCode = opCode;
+        this.msgOpCode = msgOpCode;
+        this.optional = optional;
     }
 
-    @Override
     public String getMessage() {
-        return message;
+        return "";
     }
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+    }
+
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
 }

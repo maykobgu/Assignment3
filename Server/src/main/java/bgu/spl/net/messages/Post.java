@@ -2,10 +2,13 @@ package bgu.spl.net.messages;
 
 public class Post implements Message {
     private String message;
+    private short opCode;
 
 
-    public Post(String message) {
+    public Post(String message, short opCode) {
         this.message = message;
+        this.opCode = opCode;
+
     }
 
     @Override
@@ -15,6 +18,10 @@ public class Post implements Message {
 
     @Override
     public void process() {
-        //do the login logic
+//logic
+ }
+    @Override
+    public short getOpCode() {
+        return opCode;
     }
 }
