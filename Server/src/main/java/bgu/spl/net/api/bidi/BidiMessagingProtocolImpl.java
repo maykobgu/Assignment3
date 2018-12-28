@@ -67,7 +67,9 @@ public class BidiMessagingProtocolImpl implements BidiMessagingProtocol<Message>
                     connections.send(connectionId, error);
                 } else {
                     if (type.equals("follow")) {
-
+                        for (String usr : ((Follow) message).getListOfUsersToFollow()) {
+if ()
+                        }
                     }
 
                 }

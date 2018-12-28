@@ -1,25 +1,25 @@
 package bgu.spl.net.messages;
 
 public class Stat implements Message {
-    private String message;
+    private String userName;
     private short opCode;
 
 
     public Stat(String message, short opCode) {
-        this.message = message;
+        userName = message;
         this.opCode = opCode;
 
     }
 
-    @Override
-    public String getMessage() {
-        return message;
+    public String getUserName() {
+        return userName;
     }
 
     @Override
     public void process() {
 //logic
- }
+    }
+
     @Override
     public short getOpCode() {
         return opCode;

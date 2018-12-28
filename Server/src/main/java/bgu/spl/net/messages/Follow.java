@@ -1,7 +1,7 @@
 package bgu.spl.net.messages;
 
 public class Follow implements Message {
-    private String[] list;
+    private String[] usersList;
     private short opCode;
     private String type;
     private short numOfUsers;
@@ -11,11 +11,11 @@ public class Follow implements Message {
         else type = "unfollow";
         this.opCode = opCode;
         this.numOfUsers = numOfUsers;
-        this.list = list.split(" ");
+        this.usersList = list.split(" ");
     }
 
     public String[] getListOfUsersToFollow() {
-        return list;
+        return usersList;
     }
 
     @Override

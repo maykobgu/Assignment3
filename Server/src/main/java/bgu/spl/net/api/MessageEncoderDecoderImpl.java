@@ -99,13 +99,13 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder<Messa
                 message = new Post(msg.substring(2, msg.length() - 1), opCode);
                 break;
             case 6:
-                message = new PrivateMessage(msg, opCode);
+                message = new PrivateMessage(msg.substring(2), opCode);
                 break;
             case 7:
-                message = new UserList(msg, opCode);
+                message = new UserList(opCode);
                 break;
             case 8:
-                message = new Stat(msg, opCode);
+                message = new Stat(msg.substring(2, msg.length() - 1), opCode);
                 break;
             default:
                 message = null;
