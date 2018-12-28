@@ -1,4 +1,6 @@
-package bgu.spl.net.messages;
+package bgu.spl.net.api.bidi.messages;
+
+import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
 
 public class ErrorMsg implements Message {
     private short opCode;
@@ -10,14 +12,14 @@ public class ErrorMsg implements Message {
         this.msgOpCode = msgOpCode;
     }
 
-    public String getMessage() {
-        return "";
+    @Override
+    public void process(BidiMessagingProtocolImpl protocol) {
     }
 
-    @Override
-    public void process() {
-//logic
+    public short getMsgOpCode() {
+        return msgOpCode;
     }
+
     @Override
     public short getOpCode() {
         return opCode;

@@ -1,19 +1,14 @@
 package bgu.spl.net.srv;
 
-import bgu.spl.net.messages.Message;
-import bgu.spl.net.messages.Register;
-
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DataBase {
     private HashMap<String, User> registeredUsers;
+    private LinkedList<String> userList;
 
     public DataBase() {
+        registeredUsers = new HashMap<>();
+        userList = new LinkedList<>();
     }
 
     public boolean isRegistered(String userName) {
@@ -25,8 +20,9 @@ public class DataBase {
         return registeredUsers.get(userName).isLogin();
     }
 
-    public void registerUser(String userName, String password) {
-        User user = new User(userName, password);
+    public void registerUser(String userName, String password, int connectionId) {
+        User user = new User(userName, password, connectionId);
+        userList.add(userName);
     }
 
     public void loginUser(String userName) {
@@ -41,4 +37,11 @@ public class DataBase {
         return registeredUsers.get(userName).getPassword();
     }
 
+    public User getUser(String name) {
+        return registeredUsers.get(name);
+    }
+
+    public LinkedList<String> getUserList() {
+        return userList;
+    }
 }

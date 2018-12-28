@@ -3,7 +3,6 @@
 #include <ClientToServer.h>
 #include <ServerToClient.h>
 #include <boost/thread.hpp>
-#include <CSConverter.h>
 
 /**
 * This code assumes that the server replies the exact text the client sent it (as opposed to the practical session example)
@@ -17,27 +16,32 @@ int main(int argc, char *argv[]) {
 //    short port = atoi(argv[2]);
 //
 //    ConnectionHandler connectionHandler(host, port);
-    ConnectionHandler connectionHandler("localhost", 7777);
-//
+    ConnectionHandler connectionHandler("127.0.0.1", 7777);
     bool isTerminated = false;
-//
-//    if (!connectionHandler.connect()) {
+
+    if (!connectionHandler.connect()) {
 //        std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
-//        return 1;
-//    }
-//
+        std::cerr << "Cannot connect to " << "127.0.0.1" << ":" << "7777" << std::endl;
+        return 1;
+    }
+
 //    ServerToClient serverToClient(&connectionHandler, isTerminated);
 //    ClientToServer clientToServer(&connectionHandler, isTerminated);
-//
-//    boost::thread serverToClientThread(&ServerToClient::run, &serverToClient);
-//    boost::thread clientToServerThread(&ClientToServer::run, &clientToServer);
-//
-//    serverToClientThread.join();
-//    clientToServerThread.interrupt();
-//
-//    return 0;
 
-ClientToServer *c = new ClientToServer(&connectionHandler,isTerminated );
-c->run();
+    ClientToServer *clientToServer = new ClientToServer(&connectionHandler,isTerminated );
+    ServerToClient *serverToClient = new ServerToClient(&connectionHandler,isTerminated );
+
+    boost::thread serverToClientThread(&ServerToClient::run, serverToClient);
+    boost::thread clientToServerThread(&ClientToServer::run, clientToServer);
+
+    serverToClientThread.join();
+    clientToServerThread.interrupt();
+
+    delete clientToServer;
+    delete serverToClient;
+    return 0;
+
+//
+//c->run();
 
 }

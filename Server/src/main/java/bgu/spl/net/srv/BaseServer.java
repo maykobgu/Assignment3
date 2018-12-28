@@ -1,8 +1,10 @@
 package bgu.spl.net.srv;
 
 
-import bgu.spl.net.api.MessageEncoderDecoderImpl;
-import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
+import bgu.spl.net.api.MessageEncoderDecoder;
+import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.api.bidi.Connections;
+import bgu.spl.net.api.bidi.ConnectionsImpl;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -12,24 +14,23 @@ import java.util.function.Supplier;
 public abstract class BaseServer<T> implements Server<T> {
 
     private final int port;
-    private final Supplier<BidiMessagingProtocolImpl> protocolFactory;
-    private final Supplier<MessageEncoderDecoderImpl> encdecFactory;
+    private final Supplier<BidiMessagingProtocol<T>> protocolFactory;
+    private final Supplier<MessageEncoderDecoder<T>> encdecFactory;
     private ServerSocket sock;
-    private ConnectionsImpl connections;
-    private  int conId;
+    private Connections connections;
+    private int conId;
 
 
     public BaseServer(
             int port,
-            Supplier<BidiMessagingProtocolImpl> protocolFactory,
-            Supplier<MessageEncoderDecoderImpl> encdecFactory) {
-
+            Supplier<BidiMessagingProtocol<T>> protocolFactory,
+            Supplier<MessageEncoderDecoder<T>> encdecFactory) {
         this.port = port;
         this.protocolFactory = protocolFactory;
         this.encdecFactory = encdecFactory;
         this.sock = null;
-        connections=new ConnectionsImpl();
-        conId=1;
+        connections = new ConnectionsImpl();
+        conId = 1;
     }
 
     @Override
@@ -44,11 +45,13 @@ public abstract class BaseServer<T> implements Server<T> {
 
                 Socket clientSock = serverSock.accept();
 
-                BlockingConnectionHandler handler = new BlockingConnectionHandler(
+                BlockingConnectionHandler<T> handler = new BlockingConnectionHandler<T>(
                         clientSock,
                         encdecFactory.get(),
-                        protocolFactory.get());
-                connections.setConnection(conId,handler);
+                        protocolFactory.get(),
+                        connections,
+                        conId);
+                ((ConnectionsImpl) connections).setConnection(conId, handler);
                 conId++;
                 execute(handler);
             }

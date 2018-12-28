@@ -1,4 +1,6 @@
-package bgu.spl.net.messages;
+package bgu.spl.net.api.bidi.messages;
+
+import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
 
 public class Ack implements Message {
     private short opCode;
@@ -11,13 +13,16 @@ public class Ack implements Message {
         this.optional = optional;
     }
 
-    public String getMessage() {
-        return "";
+    @Override
+    public void process(BidiMessagingProtocolImpl protocol) {
     }
 
-    @Override
-    public void process() {
-//logic
+    public String getOptional() {
+        return optional;
+    }
+
+    public short getMsgOpCode() {
+        return msgOpCode;
     }
 
     @Override

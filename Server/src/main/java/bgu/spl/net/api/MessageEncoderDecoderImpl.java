@@ -1,7 +1,6 @@
 package bgu.spl.net.api;
 
-import bgu.spl.net.messages.*;
-import bgu.spl.net.messages.ErrorMsg;
+import bgu.spl.net.api.bidi.messages.*;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -39,7 +38,34 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder<Messa
      */
     @Override
     public byte[] encode(Message message) {
-        return (message + "\n").getBytes();
+        byte[] fullMessage;
+        if (message instanceof Notification) {
+            char type = ((Notification) message).getType();
+            String postingUser = ((Notification) message).getUserName();
+            String content = ((Notification) message).getContent();
+            fullMessage = new byte[5 + postingUser.length() + content.length()];
+            shortToBytes(message.getOpCode(), fullMessage);
+            byte[] contentArr = (type + postingUser + "0" + content + "0").getBytes();
+            int j = 0;
+            for (int i = 2; i < fullMessage.length; i++) {
+                fullMessage[i] = contentArr[j];
+                j++;
+            }
+        } else if (message instanceof ErrorMsg) {
+            fullMessage = new byte[4];
+            shortToBytesForAckAndError(message.getOpCode(), ((ErrorMsg) message).getMsgOpCode(), fullMessage);
+        } else {
+            byte[] optionalArr = (((Ack) message).getOptional() + "\n").getBytes();
+            int optionalArrSize = optionalArr.length;
+            fullMessage = new byte[optionalArrSize + 4];
+            shortToBytesForAckAndError(message.getOpCode(), ((Ack) message).getMsgOpCode(), fullMessage);
+            int j = 0;
+            for (int i = 4; i < fullMessage.length; i++) {
+                fullMessage[i] = optionalArr[j];
+                j++;
+            }
+        }
+        return fullMessage;
     }
 
     private void pushByte(byte nextByte) {
@@ -74,15 +100,36 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder<Messa
         return result;
     }
 
+    public void shortToBytesForAckAndError(short num, short num2, byte[] bytesArr) {
+        bytesArr[0] = (byte) ((num >> 8) & 0xFF);
+        bytesArr[1] = (byte) (num & 0xFF);
+        bytesArr[2] = (byte) ((num2 >> 8) & 0xFF);
+        bytesArr[3] = (byte) (num2 & 0xFF);
+    }
+
+    public void shortToBytes(short num, byte[] bytesArr) {
+        bytesArr[0] = (byte) ((num >> 8) & 0xFF);
+        bytesArr[1] = (byte) (num & 0xFF);
+    }
+
     private Message createMessage(short opCode, byte[] bytes) {
         String msg = popString();
         Message message;
+        String username = "";
+        String password = "";
+        String submsg = msg.substring(2, msg.length() - 1);
+        for (int i = 0; i < submsg.length(); i++) {
+            if (submsg.charAt(i) == '0') {
+                username = submsg.substring(0, i);
+                password = submsg.substring(i + 1);
+            }
+        }
         switch (opCode) {
             case 1:
-                message = new Register(msg.substring(2), opCode);
+                message = new Register(username, password, opCode);
                 break;
             case 2:
-                message = new Login(msg.substring(2), opCode);
+                message = new Login(username, password, opCode);
                 break;
             case 3:
                 message = new Logout(opCode);
@@ -111,7 +158,6 @@ public class MessageEncoderDecoderImpl<T> implements MessageEncoderDecoder<Messa
                 message = null;
                 break;
         }
-
         return message;
     }
 }

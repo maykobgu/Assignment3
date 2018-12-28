@@ -1,8 +1,10 @@
 package bgu.spl.net.srv;
 
+import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessageEncoderDecoderImpl;
-import bgu.spl.net.api.bidi.BidiMessagingProtocolImpl;
-import bgu.spl.net.messages.Message;
+import bgu.spl.net.api.bidi.BidiMessagingProtocol;
+import bgu.spl.net.api.bidi.Connections;
+import bgu.spl.net.api.bidi.messages.Message;
 import bgu.spl.net.srv.bidi.ConnectionHandler;
 
 import java.io.BufferedInputStream;
@@ -10,23 +12,29 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class BlockingConnectionHandler implements Runnable, ConnectionHandler {
+public class BlockingConnectionHandler<T> implements Runnable, ConnectionHandler<T> {
 
-    private final BidiMessagingProtocolImpl protocol;
-    private final MessageEncoderDecoderImpl encdec;
+    private final BidiMessagingProtocol<T> protocol;
+    private final MessageEncoderDecoder<T> encdec;
     private final Socket sock;
     private BufferedInputStream in;
     private BufferedOutputStream out;
     private volatile boolean connected = true;
+    private Connections<T> connections;
+    private int connectionId;
 
-    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoderImpl reader, BidiMessagingProtocolImpl protocol) {
+    public BlockingConnectionHandler(Socket sock, MessageEncoderDecoder<T> reader, BidiMessagingProtocol<T> protocol
+            , Connections<T> connections, int connectionId) {
         this.sock = sock;
         this.encdec = reader;
         this.protocol = protocol;
+        this.connections = connections;
+        this.connectionId = connectionId;
     }
 
     @Override
     public void run() {
+        protocol.start(connectionId, connections);
         try (Socket sock = this.sock) { //just for automatic closing
             int read;
 
@@ -34,16 +42,11 @@ public class BlockingConnectionHandler implements Runnable, ConnectionHandler {
             out = new BufferedOutputStream(sock.getOutputStream());
 
             while (!protocol.shouldTerminate() && connected && (read = in.read()) >= 0) {
-                Message nextMessage = encdec.decodeNextByte((byte) read);
+                T nextMessage = encdec.decodeNextByte((byte) read);
                 if (nextMessage != null) {
-                    Message response = protocol.process(nextMessage); // TODO change
-                    if (response != null) {
-                        out.write(encdec.encode(response));
-                        out.flush();
-                    }
+                    protocol.process(nextMessage);
                 }
             }
-
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -58,6 +61,11 @@ public class BlockingConnectionHandler implements Runnable, ConnectionHandler {
 
     @Override
     public void send(Object msg) {
-
+        try {
+            // decode by the encoder decoder
+            out.write((((MessageEncoderDecoderImpl) encdec).encode((Message) msg)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
