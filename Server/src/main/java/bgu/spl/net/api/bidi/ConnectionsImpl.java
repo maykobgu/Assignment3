@@ -1,8 +1,9 @@
-package bgu.spl.net.srv;
+package bgu.spl.net.api.bidi;
 
 import bgu.spl.net.api.MessageEncoderDecoder;
 import bgu.spl.net.api.MessagingProtocol;
 import bgu.spl.net.api.bidi.Connections;
+import bgu.spl.net.api.bidi.messages.Message;
 import bgu.spl.net.srv.bidi.ConnectionHandler;
 
 import java.io.IOException;
@@ -12,14 +13,15 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Supplier;
 
-public class ConnectionsImpl<T> implements Connections<T> {
+public class ConnectionsImpl implements Connections<Message> {
     private HashMap<Integer, ConnectionHandler> connections;
 
-
-
+    public ConnectionsImpl() {
+        connections = new HashMap<>();
+    }
 
     @Override
-    public boolean send(int connectionId, T msg) {
+    public boolean send(int connectionId, Message msg) {
         ConnectionHandler connect = connections.get(connectionId);
         if (connect == null)
             return false;
@@ -30,7 +32,7 @@ public class ConnectionsImpl<T> implements Connections<T> {
     }
 
     @Override
-    public void broadcast(T msg) {
+    public void broadcast(Message msg) {
     }
 
     @Override

@@ -15,6 +15,8 @@ public:
     std::vector<std::string> insertToVector(std::vector<std::string> vector, std::string line, std::string delimiter);
 
     void run();
+
+    virtual ~ClientToServer();
 };
 
 #endif

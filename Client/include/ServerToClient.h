@@ -9,7 +9,13 @@ private:
     bool &isTerminated;
 public:
     ServerToClient(ConnectionHandler *connectionHandler, bool &isTerminated);
+
+    short bytesToShort(char *bytesArr);
+
     void run();
+
+    virtual ~ServerToClient();
+
 };
 
 #endif

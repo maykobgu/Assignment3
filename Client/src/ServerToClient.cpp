@@ -14,6 +14,13 @@ void ServerToClient::run() {
             break;
         }
 
+
+
+
+
+
+
+
         int len = answer.length();
         answer.resize(len - 1);
         std::cout << answer << std::endl;
@@ -24,4 +31,14 @@ void ServerToClient::run() {
             break;
         }
     }
+}
+
+short ServerToClient::bytesToShort(char *bytesArr) {
+    short result = (short) ((bytesArr[0] & 0xff) << 8);
+    result += (short) (bytesArr[1] & 0xff);
+    return result;
+}
+
+ServerToClient::~ServerToClient(){
+
 }
