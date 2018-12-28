@@ -10,7 +10,6 @@ public class ErrorMsg implements Message {
         this.msgOpCode = msgOpCode;
     }
 
-    @Override
     public String getMessage() {
         return "";
     }

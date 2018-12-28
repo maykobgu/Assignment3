@@ -11,7 +11,6 @@ public class Register implements Message {
 
     }
 
-    @Override
     public String[] getMessage() {
         return message;
     }

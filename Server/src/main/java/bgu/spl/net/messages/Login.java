@@ -15,7 +15,6 @@ public class Login implements Message {
 
     }
 
-    @Override
     public String[] getMessage() {
         return message;
     }

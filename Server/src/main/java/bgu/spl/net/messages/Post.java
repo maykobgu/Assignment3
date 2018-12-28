@@ -11,7 +11,6 @@ public class Post implements Message {
 
     }
 
-    @Override
     public String getMessage() {
         return message;
     }
